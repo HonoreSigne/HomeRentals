@@ -72,9 +72,15 @@ const RegisterPage = () => {
                       onChange={handleChange} 
                       required />
                   <label htmlFor="image">
-                      <img src="/assets/addImage.png" alt="add profile photo" />
+                      <img src="/assets/addImage.png" alt="add profile photo"/>
                       <p>Upload your profile picture</p>
                   </label>
+
+                  {formData.profileImage && (
+                      <img src={URL.createObjectURL(formData.profileImage)}
+                          alt='profile photo'
+                      style={{maxWidth: "80px"}}/>
+                  )}
                   <button type='submit'>Register</button>
               </form>
               <a href="/login">Already have an account? Log in Here</a>
