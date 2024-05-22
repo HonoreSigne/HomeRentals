@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useNavigate } from "react-router-dom"
 import '../styles/Register.scss'
 
 const RegisterPage = () => {
@@ -8,7 +9,7 @@ const RegisterPage = () => {
         email: "",
         password: "",
         confirmPassword: "",
-        profileImage: null
+        profileImage: null,
     });
 
     const handleChange = (e) => {
@@ -16,15 +17,46 @@ const RegisterPage = () => {
         setFormData({
             ...formData,
             [name]: value,
-            [name]: name === "profileImage" ? files[0] : value
-        })
+            [name]: name === "profileImage" ? files[0] : value,
+        });
+    };
+    console.log(formData);
+
+    const [passwordMatch, setPasswordMatch] = useState(true)
+
+    useEffect(() => {
+        setPasswordMatch(formData.password === formData.confirmPassword || formData.confirmPassword === "")
+    })
+
+    const navigate = useNavigate()
+    
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+
+        try {
+            const register_form = new FormData()
+
+            for (var key in formData) {
+                register_form.append(key, formData[key])
+            }
+
+            const response = await fetch("http://localhost:3001/auth/register", {
+                method: "POST",
+                body: register_form
+            })
+
+            if (response.ok) {
+                navigate("/login")
+            }
+        } catch (err) {
+            console.log(" Registration failed", err.message)
+        }
     }
-    console.log(formData)
 
   return (
       <div className='register'>
           <div className='register_content'>
-              <form className='register_content_form'>
+              <form className='register_content_form' onSubmit={handleSubmit}>
                   <input
                       placeholder='First Name'
                       name='firstName'
@@ -63,6 +95,10 @@ const RegisterPage = () => {
                       onChange={handleChange}
                       required
                   />
+
+                  {!passwordMatch && (
+                      <p style={{color: "red"}}>Passwords does not match</p>
+                  )}
                   <input
                       id='image'
                       type="file"
@@ -81,7 +117,7 @@ const RegisterPage = () => {
                           alt='profile photo'
                       style={{maxWidth: "80px"}}/>
                   )}
-                  <button type='submit'>Register</button>
+                  <button type='submit' disabled={!passwordMatch}>Register</button>
               </form>
               <a href="/login">Already have an account? Log in Here</a>
           </div>
